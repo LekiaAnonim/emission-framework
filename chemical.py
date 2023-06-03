@@ -154,6 +154,12 @@ def mass_CO2_mole_composition_basis(compound, composition):
     co2_composition = dictionary['CO2']
     return co2_composition
 
+def CH4_composition(compound, composition):
+    '''CH4 composition'''
+    dictionary = dict(zip(compound, composition))
+    CH4_composition = dictionary['CH4']
+    return CH4_composition
+
 def convert_scf_to_lbmole(volume_rate):
     '''This function converts volumetric flowrate in scf/time to molar flowrate in lbmole/time
     Molar volume of a gas at Standard temperature and pressure is given as:
@@ -218,3 +224,39 @@ def CO2_emissions_outlet_known_mass_weight_fraction_basis(HCout, FUEL_EFFICIENCY
     '''
     CO2_mass_emission_rate = HCout*(carbon_content_fuel_mixture_weight_basis()*(FUEL_EFFICIENCY/(1-FUEL_EFFICIENCY))*44/12 + mass_CO2_mole_composition_basis(compound, weight_fraction))*convert_lb_to_tonnes()
     return CO2_mass_emission_rate
+
+def CH4_emissions_volume_mole_basis(HCin):
+    '''
+    This function calculates the Methane emission rate in tonnes when the flare inlet data is known.
+    
+    CALCULATION STEPS:
+    '''
+    CH4_mass_emission_rate = convert_scf_to_lbmole(CH4_composition(compound, mole_fraction)*HCin)*(1-FUEL_EFFICIENCY)*16*convert_lb_to_tonnes()
+    return CH4_mass_emission_rate
+
+def CH4_emissions_mass_weight_fraction_basis(HCin):
+    '''
+    This function calculates the Methane emission rate in tonnes when the flare inlet data is known.
+    
+    CALCULATION STEPS:
+    '''
+    CH4_mass_emission_rate = CH4_composition(compound, weight_fraction)*HCin*(1-FUEL_EFFICIENCY)*convert_lb_to_tonnes()
+    return CH4_mass_emission_rate
+
+def CH4_emissions_volume_outlet_mole_basis(HCout):
+    '''
+    This function calculates the Methane emission rate in tonnes when the flare inlet data is known.
+    
+    CALCULATION STEPS:
+    '''
+    CH4_mass_emission_rate = convert_scf_to_lbmole(CH4_composition(compound, mole_fraction)*HCout)*16*convert_lb_to_tonnes()
+    return CH4_mass_emission_rate
+
+def CH4_emissions_mass_outlet_weight_fraction_basis(HCout):
+    '''
+    This function calculates the Methane emission rate in tonnes when the flare inlet data is known.
+    
+    CALCULATION STEPS:
+    '''
+    CH4_mass_emission_rate = CH4_composition(compound, weight_fraction)*HCout*convert_lb_to_tonnes()
+    return CH4_mass_emission_rate
