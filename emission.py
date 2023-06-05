@@ -21,7 +21,7 @@ class Emission:
         The mass or volume flowrate of the gas to the flare.
 
     FUEL_EFFICIENCY: float
-        Usually given the default of 0.98
+        Usually given a default value of 0.98
     '''
     def __init__(self, compounds:Iterable[str], composition:Iterable[float], HC, FUEL_EFFICENCY, *args, **kwargs):
         self.compounds = compounds
@@ -92,7 +92,7 @@ class Emission:
         list_of_hydrocarbons = []
         for i in identifiers.pubchem_db:
             if re.search(pattern, i.formula):
-                for j in self.compound:
+                for j in self.compounds:
                     if i.formula == j or i.common_name == j:
                         list_of_hydrocarbons.append(i)
             else:
@@ -104,7 +104,7 @@ class Emission:
 
         # combine two lists, compound and composition into a dictionary of key and value pair.
         dictionary = dict(zip(self.compounds, self.composition))
-        included_list = self.find_hydrocarbons_in_gas_mixture(self.compound)
+        included_list = self.find_hydrocarbons_in_gas_mixture()
         for key, value in dictionary.items():
             if key in [i.formula for i in included_list]:
                 dictionary[key] = value  # Set value to value if key is in include_list
@@ -117,7 +117,7 @@ class Emission:
             dictionary[key] = values/sum_composition
         return dictionary
     
-    def carbon_ratio(compound):
+    def carbon_ratio(self, compound):
         matches = re.findall(r"C(\d+)H", compound)
         if compound == 'CH4':
             digits = 1
@@ -130,21 +130,21 @@ class Emission:
     def adjustedComposition_molecularweight_table(self):
         
         # List to define the sorting order
-        sorting_order = list(self.adjusted_composition(self.compounds, self.composition))
+        sorting_order = list(self.adjusted_composition())
 
         # Sort the DataFrame based on the sorting_order list
-        df_sorted = self.get_molecular_weight_list(self.compounds).sort_values(by='Formula', key=lambda x: x.map({value: i for i, value in enumerate(sorting_order)})).reset_index(drop=True)
+        df_sorted = self.get_molecular_weight_list().sort_values(by='Formula', key=lambda x: x.map({value: i for i, value in enumerate(sorting_order)})).reset_index(drop=True)
 
         # Append adjusted composition to sorted dataFrame
-        df_sorted['Adjusted Composition'] = pd.Series(self.adjusted_composition(self.compounds, self.composition).values())
+        df_sorted['Adjusted Composition'] = pd.Series(self.adjusted_composition().values())
 
 
         # Append Carbon Ratio to the dataframe
-        df_sorted['Carbon Ratio'] = df_sorted['Formula'].apply(lambda formula: carbon_ratio(formula))
+        df_sorted['Carbon Ratio'] = df_sorted['Formula'].apply(lambda formula: self.carbon_ratio(formula))
         return df_sorted.fillna(0)
     
     def carbon_content_mole_basis(self):
-        data_table = self.adjustedComposition_molecularweight_table(self.compounds, self.composition)
+        data_table = self.adjustedComposition_molecularweight_table()
         data_table['Mole Fraction'] = pd.Series(self.composition)
         data_table = data_table.fillna(0)
         mole_fraction_carbonratio = lambda row: row['Mole Fraction']*float(row['Carbon Ratio'])
@@ -154,7 +154,7 @@ class Emission:
         return data_table
     
     def carbon_content_weight_basis(self):
-        data_table = self.adjustedComposition_molecularweight_table(self.compounds, self.composition)
+        data_table = self.adjustedComposition_molecularweight_table()
         data_table['Weight Fraction'] = pd.Series(self.composition)
         data_table = data_table.fillna(0)
         mole_fraction_carbonratio = lambda row: row['Adjusted Composition']*float(row['Carbon Ratio'])*12/row['Molecular Weight']
