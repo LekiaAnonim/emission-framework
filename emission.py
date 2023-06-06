@@ -108,8 +108,12 @@ class Emission:
         for key, value in dictionary.items():
             if key in [i.formula for i in included_list]:
                 dictionary[key] = value  # Set value to value if key is in include_list
+            elif key in [i.common_name for i in included_list]:
+                dictionary[key] = value  # Set value to value if key is in include_list
             else:
                 dictionary[key] = 0 # Set value to value if key is not in include_list
+
+        # print(dictionary)
 
         # find the sum of the new dictionary values when non-hydrocarbon components are set to zero
         sum_composition = sum(dictionary.values())
@@ -174,11 +178,17 @@ class Emission:
     def CO2_composition(self):
         '''Mass of CO2 in the flared stream based on CO2 composition of the inlet stream'''
         dictionary = dict(zip(self.compounds, self.composition))
-        co2_composition = dictionary['CO2']
+        if 'CO2' in self.compounds:
+             co2_composition = dictionary['CO2']
+        elif dictionary['carbon dioxide']:
+            co2_composition = dictionary['carbon dioxide']
         return co2_composition
 
     def CH4_composition(self):
         '''CH4 composition'''
-        dictionary = dict(zip(self.compound, self.composition))
-        CH4_composition = dictionary['CH4']
+        dictionary = dict(zip(self.compounds, self.composition))
+        if 'CH4' in self.compounds:
+            CH4_composition = dictionary['CH4']
+        elif dictionary['methane']:
+            CH4_composition = dictionary['methane']
         return CH4_composition

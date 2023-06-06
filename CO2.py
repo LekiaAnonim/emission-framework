@@ -23,7 +23,7 @@ class CO2(Emission):
         This function calculates the Carbon dioxide emission rate in tonnes when the flare outlet data is known.
         CALCULATION STEPS:
         '''
-        CO2_mass_emission_rate = convert.lb_tonnes(convert.CO2_lbmole_lb(convert.scf_lbmole(self.HC)*(self.carbon_content_fuel_mixture_mole_basis()*(self.FUEL_EFFICIENCY/(1-self.FUEL_EFFICIENCY)) + CO2_composition())))
+        CO2_mass_emission_rate = convert.lb_tonnes(convert.CO2_lbmole_lb(convert.scf_lbmole(self.HC)*(self.carbon_content_fuel_mixture_mole_basis()*(self.FUEL_EFFICIENCY/(1-self.FUEL_EFFICIENCY)) + self.CO2_composition())))
         return CO2_mass_emission_rate
     
     def outletmass_weightfraction(self):
